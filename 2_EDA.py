@@ -20,7 +20,7 @@ LOGISTIC = 'logistic'
 NAIVE_BAYES = 'multinomial naive Bayes'
 
 # Get all the tweets.
-path = r'D:\Springboard_DataSci\MBTI_project\Data Output'
+path = r'D:\Springboard_DataSci\Twitter_MBTI_predictor\Data Output'
 os.chdir(path)
 
 letters = [['E', 'I'], ['S', 'N'], ['F', 'T'], ['J', 'P']]
@@ -89,16 +89,16 @@ for min_df in [10, 25, 50, 100, 250, 500]:
 #%% Naive Bayes
 '''Lower min_dfs give better fits but also cause overfitting. Let's retry with
 multinomial naive Bayes and see what kinds of results we get.'''
-print('\nAnalyzing tweets with naive Bayes')
+print('\nAnalyzing tweets with logistic regression')
 for min_df in [10, 25, 50, 100, 250, 500]:
-    score_base = analyze_tweets(tweets, 'E', classifier=NAIVE_BAYES,
+    score_base = analyze_tweets(tweets, 'E', classifier=LOGISTIC,
                                 min_df=min_df)
     print(f'Full set, min_df={min_df} training and test scores:', end=' ')
     print(round(score_base[0], 4), round(score_base[1], 4))
-
 #%% Naive Bayes, no common words
-'''This is much better. Let's get rid of common words and rerun with
-min_df=10.'''
+'''Lower min_dfs give better fits but also cause overfitting. Let's retry with
+multinomial naive Bayes and see what kinds of results we get. We also remove
+common "stop" words.'''
 print('\nAnalyzing tweets with naive Bayes and stop words removed')
 for min_df in [10, 25, 50, 100, 250, 500]:
     score_base = analyze_tweets(tweets, 'E', classifier=NAIVE_BAYES,
@@ -119,9 +119,9 @@ nb_words = bayes_results[2]
 nb_coefs = bayes_results[3]
 nb_words, nb_coefs = sort_words_by_coef(nb_words, nb_coefs)
 
-'''A lot of these are nonsense, probably other users. We need to rerun this
-with a much higher min_df, even at the cost of scores. Let's also lower the
-value of alpha in the naive Bayes to get stronger regularization.'''
+'''A lot of these word are nonsense, probably other users. We need to rerun
+this with a much higher min_df, even at the cost of scores. Let's also lower
+the value of alpha in the naive Bayes to get stronger regularization.'''
 min_df=200; alpha=5
 print(f'\nNaive Bayes, stop words removed, min_df={min_df}, alpha={alpha}')
 bayes_results = analyze_tweets(
@@ -204,7 +204,7 @@ nb_words = bayes_results[2]
 nb_coefs = bayes_results[3]
 nb_words, nb_coefs = sort_words_by_coef(nb_words, nb_coefs)
 
-'''Perhaps min_df is the issue?'''
+'''Perhaps min_df is an issue?'''
 min_df=500
 print(f'\nNaive Bayes, min_df={min_df}')
 bayes_results = analyze_tweets(
@@ -237,11 +237,13 @@ def get_word_use(words, tweets_with_words, trait, other_trait):
     # Column 1 is the trait; column 2 is the "not trait."
     unique_words['Percent ' + trait] = 100*unique_words[trait] /\
         (unique_words[trait]+unique_words[other_trait])
+    unique_words.sort_values('Percent ' + trait, inplace=True)
     return unique_words
 
 #%% Get unique words
 unique_words_EI = get_word_use(nb_words, tweets_per_author, trait='E',
                                other_trait='I')
+print(unique_words_EI)
 
 #%% Unique words for other letters
 min_df=250
@@ -257,6 +259,7 @@ nb_words, nb_coefs = sort_words_by_coef(nb_words, nb_coefs)
 print('Calculating unique words')
 unique_words_SN = get_word_use(nb_words, tweets_per_author, trait='S',
                                other_trait='N')
+print(unique_words_SN)
 
 '''Some percentages farther away from 50 start to show up. Perhaps we should
 lower min_df after all?'''
@@ -273,6 +276,7 @@ nb_words, nb_coefs = sort_words_by_coef(nb_words, nb_coefs)
 print('Calculating unique words')
 unique_words_SN = get_word_use(nb_words, tweets_per_author, trait='S',
                                other_trait='N')
+print(unique_words_SN)
 
 '''With a lower min_df, more extreme percentages show up, but the number of
 authors per word drops. It seems we have a trade-off to make.'''
