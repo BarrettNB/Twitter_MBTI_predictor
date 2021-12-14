@@ -215,6 +215,16 @@ nb_words = bayes_results[2]
 nb_coefs = bayes_results[3]
 nb_words, nb_coefs = sort_words_by_coef(nb_words, nb_coefs)
 
+min_df=250
+print(f'\nNaive Bayes, min_df={min_df}')
+bayes_results = analyze_tweets(
+    tweets_per_author, 'S', classifier=NAIVE_BAYES, min_df=min_df,
+    get_words_and_probas=True)
+print('Scores:', round(bayes_results[0], 4), round(bayes_results[1], 4))
+nb_words = bayes_results[2]
+nb_coefs = bayes_results[3]
+nb_words, nb_coefs = sort_words_by_coef(nb_words, nb_coefs)
+
 #%% Analyzing the split
 def get_word_use(words, tweets_with_words, trait, other_trait):
     '''Split totals of unique authors who tweeted these words.
@@ -240,43 +250,24 @@ def get_word_use(words, tweets_with_words, trait, other_trait):
     unique_words.sort_values('Percent ' + trait, inplace=True)
     return unique_words
 
-#%% Get unique words
+#%% Unique words: E/I
+print('Calculating unique words')
 unique_words_EI = get_word_use(nb_words, tweets_per_author, trait='E',
                                other_trait='I')
 print(unique_words_EI)
 
-#%% Unique words for other letters
-min_df=250
-print(f'\nNaive Bayes, min_df={min_df}')
-bayes_results = analyze_tweets(
-    tweets_per_author, 'S', classifier=NAIVE_BAYES, min_df=min_df,
-    get_words_and_probas=True)
-print('Scores:', round(bayes_results[0], 4), round(bayes_results[1], 4))
-nb_words = bayes_results[2]
-nb_coefs = bayes_results[3]
-nb_words, nb_coefs = sort_words_by_coef(nb_words, nb_coefs)
-
-print('Calculating unique words')
+#%% Unique words: S/N
 unique_words_SN = get_word_use(nb_words, tweets_per_author, trait='S',
                                other_trait='N')
 print(unique_words_SN)
 
-'''Some percentages farther away from 50 start to show up. Perhaps we should
-lower min_df after all?'''
-min_df=150
-print(f'\nNaive Bayes, min_df={min_df}')
-bayes_results = analyze_tweets(
-    tweets_per_author, 'S', classifier=NAIVE_BAYES, min_df=min_df,
-    get_words_and_probas=True)
-print('Scores:', round(bayes_results[0], 4), round(bayes_results[1], 4))
-nb_words = bayes_results[2]
-nb_coefs = bayes_results[3]
-nb_words, nb_coefs = sort_words_by_coef(nb_words, nb_coefs)
-
+#%% Unique words: F/T
 print('Calculating unique words')
-unique_words_SN = get_word_use(nb_words, tweets_per_author, trait='S',
-                               other_trait='N')
-print(unique_words_SN)
+unique_words_EI = get_word_use(nb_words, tweets_per_author, trait='F',
+                               other_trait='T')
+print(unique_words_EI)
 
-'''With a lower min_df, more extreme percentages show up, but the number of
-authors per word drops. It seems we have a trade-off to make.'''
+#%% Unique words: J/P
+unique_words_JP = get_word_use(nb_words, tweets_per_author, trait='J',
+                               other_trait='P')
+print(unique_words_JP)
