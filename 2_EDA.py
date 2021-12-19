@@ -10,7 +10,7 @@ from sklearn.feature_extraction.text import CountVectorizer, ENGLISH_STOP_WORDS
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB
-# from scipy import sparse
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import os
@@ -232,10 +232,10 @@ def get_word_use(words, tweets_with_words, trait, other_trait):
     unique_words = pd.DataFrame(columns=['Word', trait, other_trait])
     for i, word in enumerate(words):
         # Column 1: Whether each author tweeted the word of interest.
-        word_in_tweets = tweets_per_author['Tweet'].str.contains(word)\
+        word_in_tweets = tweets_with_words['Tweet'].str.contains(word)\
             .to_frame()
-        # Column 2: Whether that author 
-        word_in_tweets[trait] = tweets_per_author[trait].to_numpy()
+        # Column 2: Whether that author has the trait.
+        word_in_tweets[trait] = tweets_with_words[trait].to_numpy()
         # Now get the summaries. Set the index to the trait boolean
         word_use = word_in_tweets.value_counts().reset_index()\
             .set_index(trait)
@@ -263,11 +263,43 @@ print(unique_words_SN)
 
 #%% Unique words: F/T
 print('Calculating unique words')
-unique_words_EI = get_word_use(nb_words, tweets_per_author, trait='F',
+unique_words_FT = get_word_use(nb_words, tweets_per_author, trait='F',
                                other_trait='T')
-print(unique_words_EI)
+print(unique_words_FT)
 
 #%% Unique words: J/P
 unique_words_JP = get_word_use(nb_words, tweets_per_author, trait='J',
                                other_trait='P')
 print(unique_words_JP)
+
+#%% Plots
+
+def plot_top_words(unique_words, letters):
+    # Get the first 10 and last 10 words on the axis
+    m_top = 10
+    n = unique_words.shape[0]
+    word_slice = np.r_[0:m_top, n-m_top:n]
+    to_plot = unique_words.iloc[word_slice]
+    x = np.arange(to_plot.shape[0]+1)
+    y = to_plot.iloc[:,-1].to_numpy()-50
+    y = np.insert(y, m_top, 0)
+    word_slice = np.insert(word_slice, m_top, m_top)
+    words_top_bottom = unique_words.iloc[word_slice]['Word']\
+        .drop(index=unique_words.index[m_top])
+    
+    # Plot them
+    fig, ax = plt.subplots()
+    ax.bar(x[y<0], y[y<0], color='r')
+    ax.bar(x[y>0], y[y>0], color='b')
+    ax.axhline(c='k')
+    ax.set_xticks(np.delete(x, m_top))
+    ax.set_xticklabels(words_top_bottom, rotation=90)
+    ax.set_xlabel(f'← {letters[1]} Words {letters[0]} →', fontsize=20)
+    ax.set_ylabel('Percent Above/Below 50%', fontsize=16)
+    ax.tick_params(right=True, labelright=True) #for easier reading
+    plt.tight_layout()
+
+for i in range(4):
+    unique_words = [unique_words_EI, unique_words_SN,
+                    unique_words_FT, unique_words_JP][i]
+    plot_top_words(unique_words, letters[i])
