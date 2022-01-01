@@ -95,6 +95,7 @@ for min_df in [10, 25, 50, 100, 250, 500]:
                                 min_df=min_df)
     print(f'Full set, min_df={min_df} training and test scores:', end=' ')
     print(round(score_base[0], 4), round(score_base[1], 4))
+    
 #%% Naive Bayes, no common words
 '''Lower min_dfs give better fits but also cause overfitting. Let's retry with
 multinomial naive Bayes and see what kinds of results we get. We also remove
@@ -280,7 +281,7 @@ def plot_top_words(unique_words, letters):
     n = unique_words.shape[0]
     word_slice = np.r_[0:m_top, n-m_top:n]
     to_plot = unique_words.iloc[word_slice]
-    x = np.arange(to_plot.shape[0]+1)
+    x = np.arange(to_plot.shape[0]+1) #Insert a gap
     y = to_plot.iloc[:,-1].to_numpy()-50
     y = np.insert(y, m_top, 0)
     word_slice = np.insert(word_slice, m_top, m_top)
@@ -293,9 +294,10 @@ def plot_top_words(unique_words, letters):
     ax.bar(x[y>0], y[y>0], color='b')
     ax.axhline(c='k')
     ax.set_xticks(np.delete(x, m_top))
-    ax.set_xticklabels(words_top_bottom, rotation=90)
+    ax.set_xticklabels(words_top_bottom, rotation=60)
     ax.set_xlabel(f'← {letters[1]} Words {letters[0]} →', fontsize=20)
     ax.set_ylabel('Percent Above/Below 50%', fontsize=16)
+    ax.set_ylim([-25,25])
     ax.tick_params(right=True, labelright=True) #for easier reading
     plt.tight_layout()
 
@@ -303,3 +305,32 @@ for i in range(4):
     unique_words = [unique_words_EI, unique_words_SN,
                     unique_words_FT, unique_words_JP][i]
     plot_top_words(unique_words, letters[i])
+    
+#%% Find tweets that contain a particular word
+
+def tweets_that_contain(tweets, word, MB_letter=None):
+    tweets = tweets[tweets['Tweet'].str.contains(word)]
+    if MB_letter is not None:
+        if MB_letter == 'I':
+            tweets = tweets[~tweets['E']]
+        elif MB_letter == 'E':
+            tweets = tweets[tweets['E']]
+        elif MB_letter == 'N':
+            tweets = tweets[~tweets['S']]
+        elif MB_letter == 'S':
+            tweets = tweets[tweets['S']]
+        elif MB_letter == 'T':
+            tweets = tweets[~tweets['F']]
+        elif MB_letter == 'F':
+            tweets = tweets[tweets['F']]
+        elif MB_letter == 'P':
+            tweets = tweets[~tweets['J']]
+        elif MB_letter == 'J':
+            tweets = tweets[tweets['J']]
+        else:
+            raise ValueError('Must select a Myers-Briggs letter')
+    return tweets[['Screen name', 'Time', 'Tweet']]
+
+#%% Now run it
+specific_tweets = tweets_that_contain(tweets, 'stupid', 'I')
+print(specific_tweets['Tweet'][:5])
