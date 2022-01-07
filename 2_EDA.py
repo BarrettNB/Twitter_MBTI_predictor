@@ -91,7 +91,7 @@ for min_df in [10, 25, 50, 100, 250, 500]:
 multinomial naive Bayes and see what kinds of results we get.'''
 print('\nAnalyzing tweets with logistic regression')
 for min_df in [10, 25, 50, 100, 250, 500]:
-    score_base = analyze_tweets(tweets, 'E', classifier=LOGISTIC,
+    score_base = analyze_tweets(tweets, 'E', classifier=NAIVE_BAYES,
                                 min_df=min_df)
     print(f'Full set, min_df={min_df} training and test scores:', end=' ')
     print(round(score_base[0], 4), round(score_base[1], 4))
@@ -332,5 +332,14 @@ def tweets_that_contain(tweets, word, MB_letter=None):
     return tweets[['Screen name', 'Time', 'Tweet']]
 
 #%% Now run it
-specific_tweets = tweets_that_contain(tweets, 'stupid', 'I')
-print(specific_tweets['Tweet'][:5])
+specific_tweets_stupid = tweets_that_contain(tweets, 'stupid', 'I')
+print(specific_tweets_stupid[:5])
+
+specific_tweets_lmao = tweets_that_contain(tweets, 'lmao', 'S')
+print(specific_tweets_lmao[:5])
+
+specific_tweets_baby = tweets_that_contain(tweets, 'baby', 'F')
+print(specific_tweets_baby[:5])
+
+specific_tweets_idk = tweets_that_contain(tweets, 'idk', 'P')
+print(specific_tweets_idk[:5])
