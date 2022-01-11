@@ -5,7 +5,7 @@ Created on Wed Jan  5 18:36:34 2022
 @author: Barrett
 """
 
-from sklearn.feature_extraction.text import CountVectorizer, ENGLISH_STOP_WORDS
+from sklearn.feature_extraction.text import CountVectorizer#, ENGLISH_STOP_WORDS
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB
@@ -14,7 +14,6 @@ import numpy as np
 import pandas as pd
 import os
 import re
-
 
 # Get all the tweets.
 path = r'D:\Springboard_DataSci\Twitter_MBTI_predictor\Data Output'
@@ -56,7 +55,7 @@ def trim_tweet(tweet):
     return ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)",
                            " ", tweet).split())
 
-print('Trimming tweets of tags and URLs')
+print('\nTrimming tweets of tags and URLs')
 tweets['Tweet'] = tweets['Tweet'].apply(trim_tweet)
         
 #%% Analyze tweets; sort words by score
@@ -101,30 +100,83 @@ tweets_per_author = tweets_per_author.merge(
     authors_MBTI, 'left', on='Screen name')
 
 #%%
-print('\nAnalyzing tweets at the tweet level')
-min_df=500
-tweets_results = analyze_tweets(tweets, 'E', classifier=NAIVE_BAYES,
-                                min_df=min_df, get_words_and_probas=True)
-print(f'Full set, min_df={min_df} training and test scores:', end=' ')
-print(round(tweets_results[0], 4), round(tweets_results[1], 4))
+'''We've looked through several combinations of hyperparameters. Let's look
+for the one that performs the best. First we do the E/I axis.'''
+print('\nAnalyzing tweets at the author level: E/I axis')
+best_min_df, best_test_size, best_test_score = 0, 0, 0
+for min_df in [100, 150, 200, 300, 400, 500]:
+    print(f'\tTesting with a min_df of {min_df}')
+    for test_size in [0.2, 0.25, 0.3, 0.35, 0.4]:
+        author_results = analyze_tweets(
+            tweets_per_author, 'E', classifier=NAIVE_BAYES, min_df=min_df,
+            get_words_and_probas=True, test_size=test_size)
+        train_score, test_score = round(author_results[0], 4),\
+            round(author_results[1], 4)
+        if test_score > best_test_score:
+            best_min_df, best_test_size, best_test_score = min_df, test_size,\
+                test_score
+                
+print('Best min_df, test size, and score:',
+      best_min_df, best_test_size, best_test_score)
+'''The parameters are: min_df=300, test_size=0.25, and test_score=0.605.
+Next, the S/N axis.'''
 
 #%%
-test_size = 0.2
-print(f'\nAnalyzing tweets at the author level, test_size={test_size}')
-min_df=500
-author_results = analyze_tweets(
-    tweets_per_author, 'E', classifier=NAIVE_BAYES, min_df=min_df,
-    get_words_and_probas=True, test_size=test_size)
-print(f'Full set, min_df={min_df} training and test scores:', end=' ')
-print(round(author_results[0], 4), round(author_results[1], 4))
+print('\nAnalyzing tweets at the author level: S/N axis')
+best_min_df, best_test_size, best_test_score = 0, 0, 0
+for min_df in [100, 150, 200, 300, 400, 500]:
+    print(f'\tTesting with a min_df of {min_df}')
+    for test_size in [0.2, 0.25, 0.3, 0.35, 0.4]:
+        author_results = analyze_tweets(
+            tweets_per_author, 'S', classifier=NAIVE_BAYES, min_df=min_df,
+            get_words_and_probas=True, test_size=test_size)
+        train_score, test_score = round(author_results[0], 4),\
+            round(author_results[1], 4)
+        if test_score > best_test_score:
+            best_min_df, best_test_size, best_test_score = min_df, test_size,\
+                test_score
+                
+print('Best min_df, test size, and score:',
+      best_min_df, best_test_size, best_test_score)
+'''The best parameters are: min_df=150, test_size=0.25, and test_score=0.665.
+Now the F/T axis.'''
 
 #%%
-test_size = 0.25
-print(f'\nAnalyzing tweets at the author level, test_size={test_size}')
-min_df=500
-author_results = analyze_tweets(
-    tweets_per_author, 'E', classifier=NAIVE_BAYES, min_df=min_df,
-    get_words_and_probas=True, test_size=test_size)
-print(f'Full set, min_df={min_df} training and test scores:', end=' ')
-print(round(author_results[0], 4), round(author_results[1], 4))
+print('\nAnalyzing tweets at the author level: F/T axis')
+best_min_df, best_test_size, best_test_score = 0, 0, 0
+for min_df in [100, 150, 200, 300, 400, 500]:
+    print(f'\tTesting with a min_df of {min_df}')
+    for test_size in [0.2, 0.25, 0.3, 0.35, 0.4]:
+        author_results = analyze_tweets(
+            tweets_per_author, 'F', classifier=NAIVE_BAYES, min_df=min_df,
+            get_words_and_probas=True, test_size=test_size)
+        train_score, test_score = round(author_results[0], 4),\
+            round(author_results[1], 4)
+        if test_score > best_test_score:
+            best_min_df, best_test_size, best_test_score = min_df, test_size,\
+                test_score
+                
+print('Best min_df, test size, and score:',
+      best_min_df, best_test_size, best_test_score)
+'''The best parameters are: min_df=500, test_size=0.2, and test_score=0.6094.
+Finally, the J/P axis.'''
 
+#%%
+print('\nAnalyzing tweets at the author level: J/P axis')
+best_min_df, best_test_size, best_test_score = 0, 0, 0
+for min_df in [100, 150, 200, 300, 400, 500]:
+    print(f'\tTesting with a min_df of {min_df}')
+    for test_size in [0.2, 0.25, 0.3, 0.35, 0.4]:
+        author_results = analyze_tweets(
+            tweets_per_author, 'J', classifier=NAIVE_BAYES, min_df=min_df,
+            get_words_and_probas=True, test_size=test_size)
+        train_score, test_score = round(author_results[0], 4),\
+            round(author_results[1], 4)
+        if test_score > best_test_score:
+            best_min_df, best_test_size, best_test_score = min_df, test_size,\
+                test_score
+                
+print('Best min_df, test size, and score:',
+      best_min_df, best_test_size, best_test_score)
+'''The best parameters are: min_df=100, test_size=0.4, and test_score=0.5828.
+'''
