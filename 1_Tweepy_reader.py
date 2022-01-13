@@ -36,7 +36,7 @@ auth.set_access_token(access_token, access_token_secret)
 
 # Get the API.
 api = tweepy.API(auth, wait_on_rate_limit=True)
-path = r'D:\Springboard_DataSci\MBTI_project'
+path = r'D:\Springboard_DataSci\Twitter_MBTI_predictor'
 
 # Set up the 16 types.
 letters = [['E', 'I'], ['S', 'N'], ['F', 'T'], ['J', 'P']]
