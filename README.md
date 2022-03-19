@@ -21,6 +21,8 @@ Either way, our task is to attempt to classify Twitter users’ Myers-Briggs typ
 
 [Final report](https://docs.google.com/document/d/1XFLDJz3YmNM6RGq2ZA4BL03vJ7vegTmBUQck0Pnx9eA/edit?usp=sharing)
 
+[Presentation](https://github.com/BarrettNB/Twitter_MBTI_predictor/blob/main/Reports/Twitter_MBTI_presentation.pdf)
+
 ## Data Sources
 
 ## Notebooks
