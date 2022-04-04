@@ -25,6 +25,8 @@ Either way, our task is to attempt to classify Twitter users’ Myers-Briggs typ
 
 ## Data Sources
 
+[Tweets](https://data.world/bman10101/mbti-twitter-project/)
+
 ## Notebooks
 
 Data is collected and screened in Part 1. Part 2 runs through exploratory data analysis. From trends learned here, Part 3 trains the data through machine learning algorithms and analyzes and optimizes the results.
